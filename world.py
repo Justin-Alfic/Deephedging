@@ -605,3 +605,47 @@ class SimpleWorld_Spot_ATM(object):
         if print_input:
             print("Config settings:\n%s" % self.input_report)
 
+
+            def phoenix(spots):
+
+        #phoenix parameters
+        myActualPeriod = payoffParameters("actualperiod",int)
+        myFirstFixing = payoffParameters("firstfixing",float) 
+        myBarrierKI = payoffParameters("barrierKI",float)
+        myBarrierKO = payoffParameters("barrierKO", float)
+        myRedemptionBarrier = payoffParameters("redemptionBarrier",float)
+        myCouponKI = payoffParameters("couponKI",float)
+
+        paidCoupon =0
+        payoff =0
+        isCalled = false
+        periodCount = myActualPeriod
+
+        for s in spots:
+
+            perf = s/myFirstFixing
+
+            if not isCalled:
+                if perf > myBarrierKI:
+
+                    payoff += myCouponKI * periodCount - paidCoupon
+                    paidCoupon += payoff
+
+                if perf > myBarrierKO:
+
+                    isCalled = true
+                    payoff += myCouponKO + 1
+
+                periodCount += 1
+
+            finalPerf = spots[-1]/myFirstFixing
+
+            if not isCalled:
+                if finalPerf <myRedemptionBarrier:
+
+                    payoff-= np.minimum(1,np.maximum(finalPerf - myRedemptionBarrier,0))
+                
+                payoff+=1
+                    
+        return payoff
+
